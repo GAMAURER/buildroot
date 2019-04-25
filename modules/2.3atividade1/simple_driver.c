@@ -138,7 +138,11 @@ static int dev_open(struct inode *inodep, struct file *filep){
  */
 static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *offset){
 	int error_count = 0;
-   
+    message = memcopy(hdr->str);
+    list_head p= hdr->next;
+    list_del_init(hdr);
+    free(hdr);
+    hdr=p; 
 	// copy_to_user has the format ( * to, *from, size) and returns 0 on success
 	error_count = copy_to_user(buffer, message, size_of_message);
 

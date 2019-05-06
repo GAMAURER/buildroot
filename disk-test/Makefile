@@ -1,5 +1,5 @@
 obj-m := sstf-iosched.o
-BUILDROOT_DIR := ../
+BUILDROOT_DIR := /Documents/linuxdistro/buildroot
 KDIR := $(BUILDROOT_DIR)/output/build/linux-custom
 COMPILER := $(BUILDROOT_DIR)/output/host/bin/i686-buildroot-linux-uclibc-gcc
 

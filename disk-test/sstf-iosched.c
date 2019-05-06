@@ -22,29 +22,86 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq,
 	list_del_init(&next->queuelist);
 }
 
-/* Esta função despacha o próximo bloco a ser lido. */
+/* Esta função despacha o próximo bloco a ser lido. 
+
+static int noop_dispatch(struct request_queue *q, int force)
+{
+	struct noop_data *nd = q->elevator->elevator_data;
+	struct request *rq;
+
+	rq = list_first_entry_or_null(&nd->queue, struct request, queuelist);
+	if (rq) {
+		list_del_init(&rq->queuelist);
+		elv_dispatch_sort(q, rq);
+		return 1;
+	}
+	return 0;
+}
+
+*/
+
+static long diff(long x, long y)
+{
+	return x >= y ? x - y : y - x;
+}
 static int sstf_dispatch(struct request_queue *q, int force){
 	struct sstf_data *nd = q->elevator->elevator_data;
 	char direction = 'R';
 	struct request *rq;
 
-	/* Aqui deve-se retirar uma requisição da fila e enviá-la para processamento.
-	 * Use como exemplo o driver noop-iosched.c. Veja como a requisição é tratada.
-	 *
-	 * Antes de retornar da função, imprima o sector que foi atendido.
-	 */
-
-	rq = list_first_entry_or_null(&nd->queue, struct request, queuelist);
-	if (rq) {
+	if(!list_empty(&nd->queue)){
+		struct request *next, *prev;
+		next = list_entry(nd->queue.next, struct request, queuelist);
+		prev = = list_entry(nextrq->queuelist.prev, struct request, queuelist);
+		if(next==prev){
+			rq=next;
+		}		
+		else{
+			sector_t pos = nd->head_pos;
+			if(diff(pos,next->__sector)<diff(pos,prev->__sector)){
+				nd->direction = HEAD_FWD;
+				rq=next;
+			}
+			else{
+				nd->direction = HEAD_BCK;
+				rq=prev;
+			}
+			
+		}
 		list_del_init(&rq->queuelist);
 		elv_dispatch_sort(q, rq);
 		printk(KERN_EMERG "[SSTF] dsp %c %lu\n", direction, blk_rq_pos(rq));
 
 		return 1;
 	}
-
 	return 0;
 }
+
+		/* Aqui deve-se retirar uma requisição da fila e enviá-la para processamento.
+	 * Use como exemplo o driver noop-iosched.c. Veja como a requisição é tratada.
+	 *
+	 * Antes de retornar da função, imprima o sector que foi atendido.
+	 
+	 
+	struct request *shortest = list_first_entry_or_null(&nd->queue, struct request, queuelist);
+
+	if (prev_sector > -1 && shortest) {
+
+		long shortest_aux = (long)blk_rq_pos(shortest);
+		long shortest_distance = diff(prev_sector,shortest_aux);
+		struct request *cursor = NULL;
+		list_for_each_entry(cursor,&nd->queue,queuelist){
+			long cursor_aux = (long)blk_rq_pos(cursor);
+			long cursor_distance = diff(prev_sector,cursor_aux);
+			if (cursor_distance < shortest_distance) {
+				shortest_distance = cursor_distance;
+				shortest = cursor;
+			}
+		}
+	}
+	rq =shortest
+ 	*/
+
 
 static void sstf_add_request(struct request_queue *q, struct request *rq){
 	struct sstf_data *nd = q->elevator->elevator_data;

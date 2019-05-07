@@ -14,6 +14,8 @@
 /* SSTF data structure. */
 struct sstf_data {
 	struct list_head queue;
+	struct list_head* enqueue;
+	int count;
 };
 
 static void sstf_merged_requests(struct request_queue *q, struct request *rq,
@@ -42,7 +44,9 @@ static int noop_dispatch(struct request_queue *q, int force)
 
 static long diff(long x, long y)
 {
-	return x >= y ? x - y : y - x;
+	int a = x-y;
+	if(a>0){return a;}
+	return -a;
 }
 static int sstf_dispatch(struct request_queue *q, int force){
 	struct sstf_data *nd = q->elevator->elevator_data;
@@ -83,37 +87,48 @@ static int sstf_dispatch(struct request_queue *q, int force){
 	 * Antes de retornar da função, imprima o sector que foi atendido.
 	 
 	 
-	struct request *shortest = list_first_entry_or_null(&nd->queue, struct request, queuelist);
 
-	if (prev_sector > -1 && shortest) {
-
-		long shortest_aux = (long)blk_rq_pos(shortest);
-		long shortest_distance = diff(prev_sector,shortest_aux);
-		struct request *cursor = NULL;
-		list_for_each_entry(cursor,&nd->queue,queuelist){
-			long cursor_aux = (long)blk_rq_pos(cursor);
-			long cursor_distance = diff(prev_sector,cursor_aux);
-			if (cursor_distance < shortest_distance) {
-				shortest_distance = cursor_distance;
-				shortest = cursor;
-			}
-		}
-	}
-	rq =shortest
  	*/
 
 
 static void sstf_add_request(struct request_queue *q, struct request *rq){
 	struct sstf_data *nd = q->elevator->elevator_data;
 	char direction = 'R';
+	short a =0;
+	if(list_empty(&nd->queue)){
+		list_add(&rq->queuelist,&nd->queue);
+		nd->enqueue=nd->queue.next;
+		nd->count+=1;
+	}
+	else{
+		
+		struct list_head* head;
+		sector_t new = blk_rq_pos(rq);
+		list_for_each(head, &nd->queue) { 	
+			
+			if (nd->count == 1){
+				a=1;
+				list_add(&rq->queuelist, head);
+				nd->count++;			
+				break;
+			}	
 
-	/* Aqui deve-se adicionar uma requisição na fila do driver.
-	 * Use como exemplo o driver noop-iosched.c
-	 *
-	 * Antes de retornar da função, imprima o sector que foi adicionado na lista.
-	 */
+			struct request* next_req = list_entry(head->next, struct request, queuelist);
+			sector_t next = blk_rq_pos(next_req);
+		
+			if (next >= new ){
+				a=1;
+				list_add(&rq->queuelist, position);
+				nd->count++;			
+				break;
+			}	
+		}
+	}
+	if(a==0){
+		list_add_tail(&rq->queuelist, &nd->queue);
 
-	list_add_tail(&rq->queuelist, &nd->queue);
+	}
+	printk("Terminamos de adicionar um item na queue e agora temos %d requisiões a serem atendidas\n", nd->count);
 	printk(KERN_EMERG "[SSTF] add %c %lu\n", direction, blk_rq_pos(rq));
 }
 
@@ -139,7 +154,7 @@ static int sstf_init_queue(struct request_queue *q, struct elevator_type *e){
 	eq->elevator_data = nd;
 
 	INIT_LIST_HEAD(&nd->queue);
-
+	nd->count =0;
 	spin_lock_irq(q->queue_lock);
 	q->elevator = eq;
 	spin_unlock_irq(q->queue_lock);
@@ -188,6 +203,7 @@ static void __exit sstf_exit(void)
 module_init(sstf_init);
 module_exit(sstf_exit);
 
-MODULE_AUTHOR("Sergio Johann Filho");
+MODULE_AUTHOR("Sergio Johann Filho, Guilherme Maurer");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("SSTF IO scheduler");
+//ref https://github.com/rettigs/cs444-group4/blob/master/project2/sstf-iosched.c

@@ -1,5 +1,5 @@
 obj-m := sstf-iosched.o
-BUILDROOT_DIR := /Documents/linuxdistro/buildroot
+BUILDROOT_DIR := ../
 KDIR := $(BUILDROOT_DIR)/output/build/linux-custom
 COMPILER := $(BUILDROOT_DIR)/output/host/bin/i686-buildroot-linux-uclibc-gcc
 
@@ -17,4 +17,5 @@ clean:
 	rm -f Module.symvers
 	rm -f sstf-iosched.mod.c
 	rm -f sector_read
+
 

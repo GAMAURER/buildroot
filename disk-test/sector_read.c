@@ -1,8 +1,7 @@
 /*
  * Simple disc I/O generator
  */
-
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -17,9 +16,9 @@ int main(){
 	int ret, fd, pid, i;
 	unsigned int pos;
 	char buf[BUFFER_LENGTH];
-    for(i=0;i<5;i++){
-    fork();
-    }
+	for(i=0;i<9;i++){
+		fork();
+	}
 	printf("Starting sector read example...\n");
 
 	printf("Cleaning disk cache...\n");
@@ -41,8 +40,10 @@ int main(){
 		lseek(fd, pos * 512, SEEK_SET);
 		/* Peform read. */
 		read(fd, buf, 100);
+		
 	}
 	close(fd);
 
 	return 0;
 }
+

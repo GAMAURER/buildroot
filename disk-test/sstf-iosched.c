@@ -5,6 +5,7 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/init.h>
+#include <linux/unistd.h>
 
 /* SSTF data structure. */
 long lastsec = 0;
@@ -28,46 +29,58 @@ static int sstf_dispatch(struct request_queue *q, int force){
 	struct sstf_data *nd = q->elevator->elevator_data;
 	char direction = 'R';
 	struct request *rq;
+    int len = 0;
     
     
 	/* Aqui deve-se retirar uma requisição da fila e enviá-la para processamento.
 	 * Use como exemplo o driver noop-iosched.c. Veja como a requisição é tratada.
 	 *
 	 * Antes de retornar da função, imprima o sector que foi atendido.
-	 */
+	 
 
     //closestrequest tem o request mais proxuimo
     if(lastsec==0){
 		rq = list_first_entry_or_null(&nd->queue, struct request, queuelist);
+        printk(KERN_EMERG "lastsec==0\n");
 	}
-	else{
+	else{*/
+	if(!list_empty(&nd->queue))
+        printk(KERN_EMERG "else\n");
 		long closestdiff = LONG_MAX;
 		struct request* closestrequest;
 		struct list_head *h;
-		long rqpos=lastsec;
+		
 		
 		list_for_each(h,&nd->queue){
-			printk("foreach");
+            printk(KERN_EMERG "");
+            //len++;
+			 
+			
 			struct request* curr_req = list_entry(h, struct request, queuelist);
 			long hpos=blk_rq_pos(curr_req);
-			if(diff(hpos,rqpos)<closestdiff){
-				closestdiff=diff(hpos,rqpos);
+			if(diff(hpos,lastsec)<closestdiff){
+                 printk(KERN_EMERG "");
+				closestdiff=diff(hpos,lastsec);
 				closestrequest=curr_req;        
 			}
 		}
 		    
 		rq=closestrequest;
-		lastsec = blk_rq_pos(rq);
 		
-	}
+		
+	//}
 	if (rq) {
+		printk(KERN_EMERG "[SSTF] dsp %c %lu \n", direction, blk_rq_pos(rq));
+        lastsec = blk_rq_pos(rq);
 
 		list_del_init(&rq->queuelist);
 		elv_dispatch_sort(q, rq);
-		printk(KERN_EMERG "[SSTF] dsp %c %lu\n", direction, blk_rq_pos(rq));
-
+		
+        len = 0;
 		return 1;
 	}
+
+    len = 0;
     
 	return 0;
 }
@@ -83,7 +96,7 @@ static void sstf_add_request(struct request_queue *q, struct request *rq){
 	 */
 
 	list_add_tail(&rq->queuelist, &nd->queue);
-	//printk(KERN_EMERG "[SSTF] add %c %lu\n", direction, blk_rq_pos(rq));
+	printk(KERN_EMERG "[SSTF] add  %lu\n",  blk_rq_pos(rq));
 }
 
 static int sstf_init_queue(struct request_queue *q, struct elevator_type *e){

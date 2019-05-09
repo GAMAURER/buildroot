@@ -1,7 +1,9 @@
+
 /*
  * Simple disc I/O generator
  */
-#include <sys/types.h>
+
+#include <sys/types.h> 
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -16,15 +18,15 @@ int main(){
 	int ret, fd, pid, i;
 	unsigned int pos;
 	char buf[BUFFER_LENGTH];
-	for(i=0;i<9;i++){
-		fork();
-	}
+    for(i=0;i<6;i++){
+   		fork();
+    }
 	printf("Starting sector read example...\n");
 
 	printf("Cleaning disk cache...\n");
 	system("echo 3 > /proc/sys/vm/drop_caches");
 
-	srand(getpid());
+	srand(getpid()*time(0));
 
 	fd = open("/dev/sdb", O_RDWR);
 	if (fd < 0){
@@ -33,17 +35,17 @@ int main(){
 	}
 
 	strcpy(buf, "hello world!");
-
-	for (i = 0; i < 50; i++){
+    usleep(50); 
+    
+	for (i = 0; i < 100; i++){
+        
 		pos = (rand() % (DISK_SZ >> 9));
 		/* Set position */
 		lseek(fd, pos * 512, SEEK_SET);
 		/* Peform read. */
-		read(fd, buf, 100);
-		
+		write(fd, buf, 100);
 	}
 	close(fd);
 
 	return 0;
 }
-

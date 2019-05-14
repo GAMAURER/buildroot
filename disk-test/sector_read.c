@@ -18,7 +18,7 @@ int main(){
 	int ret, fd, pid, i;
 	unsigned int pos;
 	char buf[BUFFER_LENGTH];
-    for(i=0;i<7;i++){
+    for(i=0;i<6;i++){
    		fork();
     }
 	printf("Starting sector read example...\n");
@@ -26,7 +26,7 @@ int main(){
 	printf("Cleaning disk cache...\n");
 	system("echo 3 > /proc/sys/vm/drop_caches");
 
-	srand(getpid()*3;
+	srand(getpid());
 
 	fd = open("/dev/sdb", O_RDWR);
 	if (fd < 0){
@@ -37,7 +37,7 @@ int main(){
 	strcpy(buf, "hello world!");
     usleep(50); 
     
-	for (i = 0; i < 50; i++){
+	for (i = 0; i < 400; i++){
         
 		pos = (rand() % (DISK_SZ >> 9));
 		/* Set position */

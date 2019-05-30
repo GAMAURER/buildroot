@@ -96,7 +96,7 @@ static void sstf_add_request(struct request_queue *q, struct request *rq){
 	 */
 
 	list_add_tail(&rq->queuelist, &nd->queue);
-	printk(KERN_EMERG "[SSTF] add  %lu\n",  blk_rq_pos(rq));//
+	printk(KERN_EMERG "",  blk_rq_pos(rq));//[SSTF] add  %lu\n
 }
 
 static int sstf_init_queue(struct request_queue *q, struct elevator_type *e){

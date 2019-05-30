@@ -1,1 +1,1 @@
-cmd_/home/maurer/Documents/linuxdistro/buildroot/disk-test/built-in.o :=  rm -f /home/maurer/Documents/linuxdistro/buildroot/disk-test/built-in.o; ar rcSTPD /home/maurer/Documents/linuxdistro/buildroot/disk-test/built-in.o
+cmd_/home/labredes/Documentos/linuxdistro/buildroot/disk-test/built-in.o :=  rm -f /home/labredes/Documentos/linuxdistro/buildroot/disk-test/built-in.o; ar rcSTPD /home/labredes/Documentos/linuxdistro/buildroot/disk-test/built-in.o

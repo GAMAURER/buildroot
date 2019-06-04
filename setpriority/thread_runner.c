@@ -4,19 +4,28 @@
 #include <unistd.h>
 #include <string.h>
 #include <linux/sched.h>
+#include <semaphore.h>
 
-#define nthread 2
+int nthread;
 int indice;
+int politica;
+int prioridade;
 int buffersize;
 char * buffer;
 char chars[]= {'A','B','C','D'};
+sem_t mutex;
 void *run(void *data)
 {
+    
 	int id = (int) data;
     printf("Thread %d Meu char e esse %c\n",id,chars[id]);
-    while(indice<buffersize)}{
+    while(indice<buffersize){
+        //inic secao critica
+        sem_wait(&mutex);
         buffer[indice]=chars[id];
         indice++;
+        //finaliza sessao critica
+        sem_post(&mutex);
     }
     return 0;
 }
@@ -81,15 +90,19 @@ int setpriority(pthread_t *thr, int newpolicy, int newpriority)
 
 int main(int argc, char **argv)
 {
+    sem_init(&mutex, 0, 1);//inicializa o mutex
+	pthread_t thr[nthread];
 
-	pthread_t thr[2];
-
-	if (argc < 2){
-		printf("usage: ./%s <execution_time>\n\n", argv[0]);
+	if (argc < 5){
+		printf("usage: ./%s <nthread<=4> <execution_time>\n\n", argv[0]);
 
 		return 0;
 	}
-    buffersize=atoi(argv[1]);//recebe o tamanho
+    nthread=atoi(argv[1]);
+    buffersize=atoi(argv[2]);
+    //recebe o tamanho
+    politica=atoi(argv[3]);
+    prioridade=atoi(argv[4]);
 	buffer = (char *) malloc(buffersize*sizeof(char));//aloca
 	memset(buffer,0,buffersize);//inicializa
 
@@ -99,11 +112,27 @@ int main(int argc, char **argv)
 	//sleep(timesleep);
 	int i;
 	for(i=0;i<nthread;i++){
+	    
 		pthread_create(&thr[i], NULL,run,(void *)i);
+		setpriority(&thr[i], politica, prioridade);
 		
 	}
 	for(i=0;i<nthread;i++){
 		pthread_join(thr[i], NULL);
 	}
+    i=indice;
+    char curr;
+    int cont[] = {0,0,0,0};
+    while(i--){
+        if(buffer[i]!=curr){
+            cont[buffer[i]-65]+=1;
+            printf("%c",buffer[i]);
+            
+        }
+        curr=buffer[i];
+        
+    }
+    printf("\n\nA=%d\nB=%d\nC=%d\nD=%d\n",cont[0],cont[1],cont[2],cont[3]);
+    //printf("%s \n", buffer);
 	return 0;
 }

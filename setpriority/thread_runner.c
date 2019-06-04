@@ -120,17 +120,18 @@ int main(int argc, char **argv)
 	for(i=0;i<nthread;i++){
 		pthread_join(thr[i], NULL);
 	}
-    i=indice;
+	
+	
+    i=0;
     char curr;
     int cont[] = {0,0,0,0};
-    while(i--){
+    while(i<indice){
         if(buffer[i]!=curr){
             cont[buffer[i]-65]+=1;
-            printf("%c",buffer[i]);
-            
+            printf("%c",buffer[i]);            
         }
         curr=buffer[i];
-        
+        i++;
     }
     printf("\n\nA=%d\nB=%d\nC=%d\nD=%d\n",cont[0],cont[1],cont[2],cont[3]);
     //printf("%s \n", buffer);

@@ -6,6 +6,8 @@
 #include <linux/sched.h>
 #include <semaphore.h>
 
+//Para rodar com 1 cre rodar assim :  taskset -c 0 ./thread_runner <nthreads> <BufferSize> <Politica> <Prioridade> 
+
 int nthread;
 int indice;
 int politica;
@@ -21,6 +23,9 @@ void *run(void *data)
     printf("Thread %d Meu char e esse %c\n",id,chars[id]);
     while(indice<buffersize){
         //inic secao critica
+		for(int i=0;i<2000;i++){
+			i++;
+		}
         sem_wait(&mutex);
         buffer[indice]=chars[id];
         indice++;
@@ -94,7 +99,7 @@ int main(int argc, char **argv)
 	pthread_t thr[nthread];
 
 	if (argc < 5){
-		printf("usage: ./%s <nthread<=4> <execution_time>\n\n", argv[0]);
+		printf("usage: ./%s < nthread<=4 > <BufferSize> <Politica> <Prioridade> \n\n", argv[0]);
 
 		return 0;
 	}
@@ -105,7 +110,8 @@ int main(int argc, char **argv)
     prioridade=atoi(argv[4]);
 	buffer = (char *) malloc(buffersize*sizeof(char));//aloca
 	memset(buffer,0,buffersize);//inicializa
-
+	pthread_t *self =pthread_self();
+	setpriority(self,SCHED_FIFO,99);
 	
 	
 	//setpriority(&thr, SCHED_RR, 1);
@@ -114,9 +120,19 @@ int main(int argc, char **argv)
 	for(i=0;i<nthread;i++){
 	    
 		pthread_create(&thr[i], NULL,run,(void *)i);
-		setpriority(&thr[i], politica, prioridade);
+		//setpriority(&thr[i], politica, prioridade+i);
 		
 	}
+	
+	
+	setpriority(&thr[0], SCHED_OTHER, 0);
+	setpriority(&thr[1], SCHED_NORMAL, 0);
+	setpriority(&thr[2], SCHED_NORMAL, 0);
+	setpriority(&thr[3], SCHED_OTHER, 0);
+	
+	
+	
+	setpriority(self,SCHED_OTHER,0);
 	for(i=0;i<nthread;i++){
 		pthread_join(thr[i], NULL);
 	}
@@ -133,7 +149,8 @@ int main(int argc, char **argv)
         curr=buffer[i];
         i++;
     }
+	//printf("%s \n", buffer);
     printf("\n\nA=%d\nB=%d\nC=%d\nD=%d\n",cont[0],cont[1],cont[2],cont[3]);
-    //printf("%s \n", buffer);
+    
 	return 0;
 }

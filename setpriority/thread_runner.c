@@ -7,7 +7,8 @@
 #include <semaphore.h>
 
 //Para rodar com 1 cre rodar assim :  taskset -c 0 ./thread_runner <nthreads> <BufferSize> <Politica> <Prioridade> 
-
+//Rodar com 1 CPU e gravar o trace:
+// sudo trace-cmd record -p function taskset -c 0 ./thread_runner 4 360000 1 5
 int nthread;
 int indice;
 int politica;
@@ -125,10 +126,10 @@ int main(int argc, char **argv)
 	}
 	
 	
-	setpriority(&thr[0], SCHED_OTHER, 0);
-	setpriority(&thr[1], SCHED_NORMAL, 0);
-	setpriority(&thr[2], SCHED_NORMAL, 0);
-	setpriority(&thr[3], SCHED_OTHER, 0);
+	setpriority(&thr[0], SCHED_RR, 1);
+	setpriority(&thr[1], SCHED_RR, 1);
+	setpriority(&thr[2], SCHED_RR, 1);
+	setpriority(&thr[3], SCHED_RR, 1);
 	
 	
 	

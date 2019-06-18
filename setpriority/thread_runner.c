@@ -121,15 +121,15 @@ int main(int argc, char **argv)
 	for(i=0;i<nthread;i++){
 	    
 		pthread_create(&thr[i], NULL,run,(void *)i);
-		//setpriority(&thr[i], politica, prioridade+i);
+		setpriority(&thr[i], politica, prioridade+i);
 		
 	}
 	
-	
-	setpriority(&thr[0], SCHED_RR, 1);
-	setpriority(&thr[1], SCHED_RR, 1);
-	setpriority(&thr[2], SCHED_RR, 1);
-	setpriority(&thr[3], SCHED_RR, 1);
+	//utilizar esta area para setar prioridades e politicas diferentes
+	//setpriority(&thr[0], SCHED_IDLE, 0);
+	//setpriority(&thr[1], SCHED_NORMAL, 0);
+	//setpriority(&thr[2], SCHED_OTHER, 0);
+	//setpriority(&thr[3], SCHED_BATCH, 0);
 	
 	
 	
